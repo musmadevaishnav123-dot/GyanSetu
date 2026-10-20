@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   BookOpen,
@@ -11,30 +11,30 @@ import {
   Award,
   ArrowRight,
   ShieldCheck,
-  Users,
-  Compass,
-  Layers,
-  ChevronRight,
-  HelpCircle,
   Mail,
   Lock,
   User,
   Phone,
   School,
-  Briefcase
+  Briefcase,
+  X,
+  Compass,
+  Flame,
+  Globe2,
+  ArrowDown
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  // Selected Role for the Embedded Login / Registration below
-  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>('student');
+  // Active modal/drawer: null | 'student' | 'teacher'
+  const [activeLoginModal, setActiveLoginModal] = useState<'student' | 'teacher' | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
 
   // Form States
-  const [email, setEmail] = useState('vaishnav.student@gyansetu.edu');
-  const [password, setPassword] = useState('student123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
 
   // Student Fields
@@ -64,7 +64,6 @@ export const LandingPage: React.FC = () => {
   ];
 
   const streamSuggestions = ['Science (PCM)', 'Science (PCB)', 'Commerce', 'Arts / Humanities'];
-
   const mediumSuggestions = ['English Medium', 'Hindi Medium', 'Marathi Medium', 'Regional Medium'];
 
   const teacherSubjectSuggestions = [
@@ -77,32 +76,12 @@ export const LandingPage: React.FC = () => {
     'Computer Science & IT'
   ];
 
-  const experienceSuggestions = [
-    '1 - 3 Years',
-    '3 - 5 Years',
-    '5 - 10 Years',
-    '10+ Years (Senior HOD)'
-  ];
+  const experienceSuggestions = ['1 - 3 Years', '3 - 5 Years', '5 - 10 Years', '10+ Years (Senior HOD)'];
+  const qualificationSuggestions = ['B.Ed with Graduation', 'M.Sc / M.A with B.Ed', 'Ph.D / Subject Specialist'];
+  const indianStates = ['Maharashtra', 'Delhi NCR', 'Uttar Pradesh', 'Karnataka', 'Bihar', 'Gujarat', 'Tamil Nadu', 'Rajasthan'];
 
-  const qualificationSuggestions = [
-    'B.Ed with Graduation',
-    'M.Sc / M.A with B.Ed',
-    'Ph.D / Subject Specialist'
-  ];
-
-  const indianStates = [
-    'Maharashtra',
-    'Delhi NCR',
-    'Uttar Pradesh',
-    'Karnataka',
-    'Bihar',
-    'Gujarat',
-    'Tamil Nadu',
-    'Rajasthan'
-  ];
-
-  const handleRoleToggle = (role: 'student' | 'teacher') => {
-    setSelectedRole(role);
+  const openAuthModal = (role: 'student' | 'teacher') => {
+    setActiveLoginModal(role);
     if (role === 'student') {
       setEmail('vaishnav.student@gyansetu.edu');
       setPassword('student123');
@@ -120,223 +99,239 @@ export const LandingPage: React.FC = () => {
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(email, selectedRole);
+    if (!activeLoginModal) return;
 
-    if (selectedRole === 'student') {
+    login(email, activeLoginModal);
+
+    if (activeLoginModal === 'student') {
       navigate('/student/dashboard');
     } else {
       navigate('/teacher/dashboard');
     }
   };
 
-  const scrollToAuth = (role: 'student' | 'teacher') => {
-    handleRoleToggle(role);
-    const element = document.getElementById('login-section');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="relative min-h-[calc(100vh-4rem)] flex flex-col justify-between bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950 text-white overflow-hidden">
       
-      {/* ======================================================== */}
-      {/* 1. SHORT APP INFORMATION & HERO SECTION                  */}
-      {/* ======================================================== */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-20 border-b border-slate-200 bg-gradient-to-b from-white via-slate-50 to-teal-50/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      {/* Background Decorative Glow Gradients */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
+
+      {/* Main Full-Height Hero Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 my-auto w-full z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          
+          {/* Left Column: Bold Hero Typography & Direct Action Cards */}
+          <div className="lg:col-span-7 space-y-6">
             
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold">
-                <Sparkles className="w-4 h-4 text-teal-600" />
-                <span>All-India National Learning Commons • Standards 1 to 12</span>
-              </div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold backdrop-blur-md">
+              <Sparkles className="w-4 h-4 text-teal-400" />
+              <span>National Learning Commons • Standards 1 to 12 across India</span>
+            </div>
 
-              <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                Gyan<span className="text-teal-600">Setu</span> — Your Bridge to Knowledge.
-              </h1>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-[1.1]">
+              Gyan<span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">Setu</span>
+              <span className="block text-2xl sm:text-3xl font-extrabold text-slate-300 mt-2 font-serif italic">
+                "Your Bridge to Knowledge"
+              </span>
+            </h1>
 
-              <p className="text-sm font-bold text-teal-700 tracking-wide uppercase">
-                ज्ञान से सफलता तक
+            <p className="text-xs sm:text-sm font-bold tracking-widest text-teal-400 uppercase">
+              ज्ञान से सफलता तक
+            </p>
+
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl">
+              An open, ad-free educational ecosystem connecting school students with verified teachers across CBSE, State Boards, and ICSE. Experience class-wise notes, conceptual video lessons, assignments, and instant self-scoring quizzes.
+            </p>
+
+            {/* Two Interactive Hero Action Portals */}
+            <div className="pt-2">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                Select Your Access Portal:
               </p>
-
-              <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
-                A centralized, ad-free educational platform uniting school students and verified educators from across India. Access class-wise NCERT notes, video lessons, homework assignments, and self-scoring quizzes for CBSE, State Boards, and ICSE.
-              </p>
-
-              {/* Quick Jump Buttons to Login Options Below */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Student Entry Card */}
                 <button
                   type="button"
-                  onClick={() => scrollToAuth('student')}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-xs text-white bg-slate-900 hover:bg-slate-800 shadow-md transition"
+                  onClick={() => openAuthModal('student')}
+                  className="group relative p-5 rounded-3xl bg-slate-800/80 hover:bg-slate-800 border-2 border-teal-500/30 hover:border-teal-400 text-left transition-all duration-300 shadow-xl hover:shadow-teal-500/10 hover:-translate-y-1 backdrop-blur-sm"
                 >
-                  <GraduationCap className="w-4 h-4 text-teal-400" />
-                  <span>Login as Student</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-teal-500/20 text-teal-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-500/30">
+                      Standard 1–12
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-teal-300 transition">
+                    I am a Student
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Access chapter notes, lectures, and practice speed quizzes.
+                  </p>
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-teal-400">
+                    <span>Enter Student Portal</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </button>
 
+                {/* Teacher Entry Card */}
                 <button
                   type="button"
-                  onClick={() => scrollToAuth('teacher')}
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-xs text-slate-800 bg-white hover:bg-slate-100 border border-slate-300 shadow-2xs transition"
+                  onClick={() => openAuthModal('teacher')}
+                  className="group relative p-5 rounded-3xl bg-slate-800/80 hover:bg-slate-800 border-2 border-blue-500/30 hover:border-blue-400 text-left transition-all duration-300 shadow-xl hover:shadow-blue-500/10 hover:-translate-y-1 backdrop-blur-sm"
                 >
-                  <BookOpen className="w-4 h-4 text-blue-600" />
-                  <span>Login as Teacher</span>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-300 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <span className="text-[10px] font-bold bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full border border-blue-500/30">
+                      Educator Console
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-white group-hover:text-blue-300 transition">
+                    I am a Teacher
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Upload notes, video lectures, homework, and evaluate students.
+                  </p>
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-bold text-blue-400">
+                    <span>Enter Teacher Portal</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </button>
-              </div>
-
-              {/* Highlights */}
-              <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center gap-5 text-xs text-slate-600 font-semibold">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Standards 1–12
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> CBSE & State Boards
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Verified Teachers Only
-                </span>
               </div>
             </div>
 
-            {/* Right Card: Quick Feature Highlights */}
-            <div className="lg:col-span-5">
-              <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200 space-y-4">
-                <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-900 to-teal-600 flex items-center justify-center text-white">
-                    <BookOpen className="w-5 h-5" />
+            {/* Trust Badges */}
+            <div className="pt-2 flex flex-wrap items-center gap-5 text-xs text-slate-400 font-semibold">
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-teal-400" /> CBSE, ICSE & State Boards
+              </span>
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <CheckCircle2 className="w-4 h-4 text-teal-400" /> Free Open Education
+              </span>
+              <span className="flex items-center gap-1.5 text-slate-300">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" /> Child Privacy Protected
+              </span>
+            </div>
+
+          </div>
+
+          {/* Right Column: Visual Showcase Card */}
+          <div className="lg:col-span-5">
+            <div className="relative mx-auto max-w-md bg-slate-800/90 rounded-3xl p-6 shadow-2xl border border-slate-700 backdrop-blur-md space-y-4">
+              
+              <div className="flex items-center justify-between pb-3 border-b border-slate-700/60">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-teal-500 flex items-center justify-center text-slate-950 font-bold">
+                    <BookOpen className="w-4 h-4 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900">What GyanSetu Delivers</h3>
-                    <p className="text-[11px] text-slate-500">Every resource verified & class-aligned</p>
+                    <p className="text-xs font-bold text-white">GyanSetu Open Commons</p>
+                    <p className="text-[10px] text-teal-400">All India Class 1 to 12</p>
                   </div>
                 </div>
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">
+                  Live & Active
+                </span>
+              </div>
 
-                <div className="space-y-2.5 text-xs text-slate-700">
-                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <FileText className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-slate-900">NCERT & Board Notes (PDF)</p>
-                      <p className="text-[11px] text-slate-500">Structured chapter summaries, derivations & formulas.</p>
-                    </div>
+              {/* Sample Live Cards */}
+              <div className="space-y-3">
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-700/70 hover:border-teal-400/50 transition">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Class 10 Science</span>
+                    <span className="text-[10px] font-semibold text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">Video + Notes</span>
                   </div>
-
-                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <Video className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-slate-900">Expert Video Lectures</p>
-                      <p className="text-[11px] text-slate-500">Concept breakdowns by certified school educators.</p>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                    <Award className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-bold text-slate-900">Self-Scoring Quizzes & Homework</p>
-                      <p className="text-[11px] text-slate-500">Instant explanations, marks tracking, and feedback.</p>
-                    </div>
-                  </div>
+                  <p className="text-sm font-bold text-white">Ohm's Law & Circuit Derivations</p>
+                  <p className="text-xs text-slate-400 mt-1">Uploaded by Dr. Ramesh Sharma (Sr. PGT)</p>
                 </div>
+
+                <div className="p-3.5 rounded-2xl bg-teal-950/40 border border-teal-500/30">
+                  <div className="flex justify-between items-start mb-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-300">Active Speed Quiz</span>
+                    <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">4 Questions</span>
+                  </div>
+                  <p className="text-sm font-bold text-white">Electricity & Equivalent Resistance</p>
+                  <p className="text-xs text-slate-400 mt-1">Instant scoring with conceptual explanations</p>
+                </div>
+              </div>
+
+              {/* Bottom Quote Banner */}
+              <div className="p-3 rounded-2xl bg-gradient-to-r from-teal-500/20 to-blue-500/20 border border-teal-500/30 text-xs flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-white">Empowering Indian Education</p>
+                  <p className="text-[10px] text-teal-300">Connecting teachers & students nationwide</p>
+                </div>
+                <Globe2 className="w-5 h-5 text-teal-400" />
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-slate-800 bg-slate-950/60 py-3 text-center text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} GyanSetu. Built for Students and Teachers of India. ज्ञान से सफलता तक।</p>
+      </div>
+
+      {/* ======================================================== */}
+      {/* INTERACTIVE POPUP / MODAL LOGIN DIALOG                   */}
+      {/* ======================================================== */}
+      {activeLoginModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
+          
+          <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto bg-white text-slate-900 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200">
+            
+            {/* Close Button */}
+            <button
+              onClick={() => setActiveLoginModal(null)}
+              className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header in Modal */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white ${
+                activeLoginModal === 'student' ? 'bg-teal-600' : 'bg-blue-600'
+              }`}>
+                {activeLoginModal === 'student' ? <GraduationCap className="w-6 h-6" /> : <BookOpen className="w-6 h-6" />}
+              </div>
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-900">
+                  {isSignUp ? `Register as ${activeLoginModal === 'student' ? 'Student' : 'Teacher'}` : `${activeLoginModal === 'student' ? 'Student' : 'Teacher'} Portal Login`}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {isSignUp ? 'Fill your details to create an account' : `Access your personalized ${activeLoginModal} dashboard`}
+                </p>
               </div>
             </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================== */}
-      {/* 2. DEDICATED LOGIN / REGISTRATION SECTION RIGHT BELOW     */}
-      {/* ======================================================== */}
-      <section id="login-section" className="py-14 sm:py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          
-          <div className="text-center space-y-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-              Direct Portal Access
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Sign In to GyanSetu
-            </h2>
-            <p className="text-xs text-slate-500">
-              Select whether you are a Student or a Teacher to continue
-            </p>
-          </div>
-
-          {/* THE TWO OPTIONS: STUDENT VS TEACHER */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Option 1: Student */}
-            <button
-              type="button"
-              onClick={() => handleRoleToggle('student')}
-              className={`p-5 rounded-3xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between ${
-                selectedRole === 'student'
-                  ? 'border-teal-500 bg-white shadow-lg ring-4 ring-teal-500/10'
-                  : 'border-slate-200 bg-white/70 hover:border-slate-300 text-slate-500'
-              }`}
-            >
-              {selectedRole === 'student' && (
-                <div className="absolute top-3 right-3 text-teal-600">
-                  <CheckCircle2 className="w-5 h-5 fill-teal-50 text-teal-600" />
-                </div>
-              )}
-              <div className="w-10 h-10 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 mb-3">
-                <GraduationCap className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900">I am a Student</h3>
-                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  Standards 1 to 12 • Access notes, videos & tests
-                </p>
-              </div>
-            </button>
-
-            {/* Option 2: Teacher */}
-            <button
-              type="button"
-              onClick={() => handleRoleToggle('teacher')}
-              className={`p-5 rounded-3xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between ${
-                selectedRole === 'teacher'
-                  ? 'border-blue-600 bg-white shadow-lg ring-4 ring-blue-600/10'
-                  : 'border-slate-200 bg-white/70 hover:border-slate-300 text-slate-500'
-              }`}
-            >
-              {selectedRole === 'teacher' && (
-                <div className="absolute top-3 right-3 text-blue-600">
-                  <CheckCircle2 className="w-5 h-5 fill-blue-50 text-blue-600" />
-                </div>
-              )}
-              <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-700 mb-3">
-                <BookOpen className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900">I am a Teacher</h3>
-                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  Educators & Tutors • Upload materials & create quizzes
-                </p>
-              </div>
-            </button>
-          </div>
-
-          {/* DYNAMIC FORM CARD WITH DETAILED FIELDS & AUTO-SUGGESTIONS */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-md space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">
-                  {isSignUp ? `New ${selectedRole === 'student' ? 'Student' : 'Teacher'} Registration` : `${selectedRole === 'student' ? 'Student' : 'Teacher'} Login`}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {isSignUp ? 'Provide your academic details below' : `Access your ${selectedRole} dashboard`}
-                </p>
-              </div>
+            {/* Role Switcher in modal */}
+            <div className="flex p-1 bg-slate-100 rounded-2xl mb-5">
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-xs font-bold text-teal-600 hover:text-teal-800"
+                onClick={() => openAuthModal('student')}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+                  activeLoginModal === 'student' ? 'bg-white text-teal-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
-                {isSignUp ? 'Already registered? Log In' : 'New user? Complete Sign Up'}
+                Student
+              </button>
+              <button
+                type="button"
+                onClick={() => openAuthModal('teacher')}
+                className={`flex-1 py-2 text-xs font-bold rounded-xl transition ${
+                  activeLoginModal === 'teacher' ? 'bg-white text-blue-700 shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Teacher
               </button>
             </div>
 
@@ -346,7 +341,7 @@ export const LandingPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    {selectedRole === 'student' ? 'Student Email ID' : 'Teacher Email ID'}
+                    {activeLoginModal === 'student' ? 'Student Email ID' : 'Teacher Email ID'}
                   </label>
                   <div className="relative">
                     <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
@@ -387,7 +382,7 @@ export const LandingPage: React.FC = () => {
                       type="text"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
-                      placeholder={selectedRole === 'student' ? 'e.g. Vaishnav Musmade' : 'e.g. Dr. Ramesh Sharma'}
+                      placeholder={activeLoginModal === 'student' ? 'e.g. Vaishnav Musmade' : 'e.g. Dr. Ramesh Sharma'}
                       className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
                       required
                     />
@@ -396,11 +391,11 @@ export const LandingPage: React.FC = () => {
               )}
 
               {/* STUDENT SPECIFIC PROFILE & AUTO-SUGGESTIONS */}
-              {selectedRole === 'student' && (
+              {activeLoginModal === 'student' && (
                 <div className="p-4 rounded-2xl bg-teal-50/40 border border-teal-100 space-y-4">
                   <div className="flex items-center gap-2 text-xs font-bold text-teal-900 pb-1 border-b border-teal-200/50">
                     <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                    <span>Student Grade & Academic Details</span>
+                    <span>Grade & Academic Information</span>
                   </div>
 
                   {/* Standard / Class Selector (1 to 12) */}
@@ -547,7 +542,7 @@ export const LandingPage: React.FC = () => {
               )}
 
               {/* TEACHER SPECIFIC PROFILE & AUTO-SUGGESTIONS */}
-              {selectedRole === 'teacher' && (
+              {activeLoginModal === 'teacher' && (
                 <div className="p-4 rounded-2xl bg-blue-50/40 border border-blue-100 space-y-4">
                   <div className="flex items-center gap-2 text-xs font-bold text-blue-900 pb-1 border-b border-blue-200/50">
                     <Briefcase className="w-3.5 h-3.5 text-blue-600" />
@@ -694,46 +689,38 @@ export const LandingPage: React.FC = () => {
               <button
                 type="submit"
                 className={`w-full py-3.5 rounded-2xl font-bold text-xs text-white shadow-md transition flex items-center justify-center gap-2 ${
-                  selectedRole === 'student'
+                  activeLoginModal === 'student'
                     ? 'bg-slate-900 hover:bg-slate-800'
                     : 'bg-blue-700 hover:bg-blue-800'
                 }`}
               >
-                <span>{isSignUp ? `Complete ${selectedRole} Registration` : `Login to ${selectedRole} Dashboard`}</span>
+                <span>{isSignUp ? `Complete ${activeLoginModal} Registration` : `Login to ${activeLoginModal} Dashboard`}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
-            {/* Quick Demo Pre-fills */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-              <span>Fast Demo Sign-In:</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleRoleToggle('student')}
-                  className="text-teal-700 hover:underline font-semibold"
-                >
-                  Sample Student
-                </button>
-                <span>•</span>
-                <button
-                  type="button"
-                  onClick={() => handleRoleToggle('teacher')}
-                  className="text-blue-700 hover:underline font-semibold"
-                >
-                  Sample Teacher
-                </button>
-              </div>
+            {/* Toggle Sign in vs Register */}
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="font-bold text-teal-600 hover:underline"
+              >
+                {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Register now"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openAuthModal(activeLoginModal === 'student' ? 'student' : 'teacher')}
+                className="text-[11px] text-slate-400 hover:text-slate-600"
+              >
+                Fast Demo Fill
+              </button>
             </div>
-          </div>
 
-          <div className="p-4 rounded-2xl bg-white/60 border border-slate-200 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Compliant with Indian Child Privacy Regulations & Verified Teacher Standards</span>
           </div>
-
         </div>
-      </section>
+      )}
 
     </div>
   );
