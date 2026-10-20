@@ -1,5 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
   BookOpen,
   GraduationCap,
@@ -14,317 +15,726 @@ import {
   Compass,
   Layers,
   ChevronRight,
-  HelpCircle
+  HelpCircle,
+  Mail,
+  Lock,
+  User,
+  Phone,
+  School,
+  Briefcase
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 export const LandingPage: React.FC = () => {
-  const { switchRole } = useAuth();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  // Selected Role for the Embedded Login / Registration below
+  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>('student');
+  const [isSignUp, setIsSignUp] = useState(false);
+
+  // Form States
+  const [email, setEmail] = useState('vaishnav.student@gyansetu.edu');
+  const [password, setPassword] = useState('student123');
+  const [fullName, setFullName] = useState('');
+
+  // Student Fields
+  const [standard, setStandard] = useState(10);
+  const [board, setBoard] = useState('CBSE (Central Board)');
+  const [schoolName, setSchoolName] = useState('');
+  const [parentContact, setParentContact] = useState('');
+  const [stream, setStream] = useState('Science (PCM)');
+  const [mediumOfStudy, setMediumOfStudy] = useState('English Medium');
+
+  // Teacher Fields
+  const [teachingSubject, setTeachingSubject] = useState('Science (Physics/Chemistry)');
+  const [experienceYears, setExperienceYears] = useState('5 to 10 Years');
+  const [classesTaught, setClassesTaught] = useState<string[]>(['Class 9', 'Class 10']);
+  const [qualification, setQualification] = useState('M.Sc / B.Ed');
+  const [affiliatedInstitution, setAffiliatedInstitution] = useState('');
+  const [stateName, setStateName] = useState('Maharashtra');
+
+  // Clickable Auto-Suggestions
+  const boardSuggestions = [
+    'CBSE (Central Board)',
+    'Maharashtra State Board (MSBSHSE)',
+    'ICSE / ISC',
+    'UP Board (UPMSP)',
+    'Bihar Board (BSEB)',
+    'Karnataka Board'
+  ];
+
+  const streamSuggestions = ['Science (PCM)', 'Science (PCB)', 'Commerce', 'Arts / Humanities'];
+
+  const mediumSuggestions = ['English Medium', 'Hindi Medium', 'Marathi Medium', 'Regional Medium'];
+
+  const teacherSubjectSuggestions = [
+    'Mathematics',
+    'Science (Physics)',
+    'Science (Chemistry)',
+    'Biology',
+    'Social Science',
+    'English Literature',
+    'Computer Science & IT'
+  ];
+
+  const experienceSuggestions = [
+    '1 - 3 Years',
+    '3 - 5 Years',
+    '5 - 10 Years',
+    '10+ Years (Senior HOD)'
+  ];
+
+  const qualificationSuggestions = [
+    'B.Ed with Graduation',
+    'M.Sc / M.A with B.Ed',
+    'Ph.D / Subject Specialist'
+  ];
+
+  const indianStates = [
+    'Maharashtra',
+    'Delhi NCR',
+    'Uttar Pradesh',
+    'Karnataka',
+    'Bihar',
+    'Gujarat',
+    'Tamil Nadu',
+    'Rajasthan'
+  ];
+
+  const handleRoleToggle = (role: 'student' | 'teacher') => {
+    setSelectedRole(role);
+    if (role === 'student') {
+      setEmail('vaishnav.student@gyansetu.edu');
+      setPassword('student123');
+    } else {
+      setEmail('dr.sharma@gyansetu.edu');
+      setPassword('teacher123');
+    }
+  };
+
+  const handleClassSelectionToggle = (cls: string) => {
+    setClassesTaught(prev =>
+      prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls]
+    );
+  };
+
+  const handleLoginSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    login(email, selectedRole);
+
+    if (selectedRole === 'student') {
+      navigate('/student/dashboard');
+    } else {
+      navigate('/teacher/dashboard');
+    }
+  };
+
+  const scrollToAuth = (role: 'student' | 'teacher') => {
+    handleRoleToggle(role);
+    const element = document.getElementById('login-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 border-b border-slate-200 bg-gradient-to-b from-white via-slate-50 to-teal-50/20">
+      
+      {/* ======================================================== */}
+      {/* 1. SHORT APP INFORMATION & HERO SECTION                  */}
+      {/* ======================================================== */}
+      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-20 border-b border-slate-200 bg-gradient-to-b from-white via-slate-50 to-teal-50/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Headline and Call-to-actions */}
-            <div className="lg:col-span-7 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-7 space-y-5">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-semibold">
                 <Sparkles className="w-4 h-4 text-teal-600" />
-                <span>Centralized Learning Platform for Standards 1–12</span>
+                <span>All-India National Learning Commons • Standards 1 to 12</span>
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.15]">
-                Every Student Deserves a <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-teal-700 to-teal-500">Better Way to Learn.</span>
+              <h1 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
+                Gyan<span className="text-teal-600">Setu</span> — Your Bridge to Knowledge.
               </h1>
 
-              <p className="text-lg text-slate-600 font-normal leading-relaxed max-w-2xl">
-                <strong>Your Bridge to Knowledge</strong> — explore lessons, access chapter notes, watch teacher explanations, practice verified quizzes, and submit assignments in one safe, centralized school platform.
+              <p className="text-sm font-bold text-teal-700 tracking-wide uppercase">
+                ज्ञान से सफलता तक
               </p>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link
-                  to="/student/dashboard"
-                  onClick={() => switchRole('student')}
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-white bg-slate-900 hover:bg-slate-800 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                >
-                  <GraduationCap className="w-5 h-5 text-teal-400" />
-                  <span>Start Learning</span>
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Link>
+              <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
+                A centralized, ad-free educational platform uniting school students and verified educators from across India. Access class-wise NCERT notes, video lessons, homework assignments, and self-scoring quizzes for CBSE, State Boards, and ICSE.
+              </p>
 
-                <Link
-                  to="/teacher/dashboard"
-                  onClick={() => switchRole('teacher')}
-                  className="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-slate-800 bg-white hover:bg-slate-100 border border-slate-300 shadow-xs hover:shadow-md transition"
+              {/* Quick Jump Buttons to Login Options Below */}
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => scrollToAuth('student')}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-xs text-white bg-slate-900 hover:bg-slate-800 shadow-md transition"
                 >
-                  <BookOpen className="w-5 h-5 text-teal-600" />
-                  <span>Join as a Teacher</span>
-                </Link>
+                  <GraduationCap className="w-4 h-4 text-teal-400" />
+                  <span>Login as Student</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => scrollToAuth('teacher')}
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-xs text-slate-800 bg-white hover:bg-slate-100 border border-slate-300 shadow-2xs transition"
+                >
+                  <BookOpen className="w-4 h-4 text-blue-600" />
+                  <span>Login as Teacher</span>
+                </button>
               </div>
 
-              {/* Trust & Academic tags */}
-              <div className="pt-6 border-t border-slate-200 flex flex-wrap items-center gap-6 text-xs text-slate-500 font-medium">
-                <span className="flex items-center gap-1.5 text-slate-700">
+              {/* Highlights */}
+              <div className="pt-4 border-t border-slate-200 flex flex-wrap items-center gap-5 text-xs text-slate-600 font-semibold">
+                <span className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Standards 1–12
+                </span>
+                <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" /> CBSE & State Boards
                 </span>
-                <span className="flex items-center gap-1.5 text-slate-700">
+                <span className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Verified Teachers Only
                 </span>
-                <span className="flex items-center gap-1.5 text-slate-700">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Zero Unfiltered Ads
-                </span>
               </div>
             </div>
 
-            {/* Right Column: Visual Bridge Concept Card */}
+            {/* Right Card: Quick Feature Highlights */}
             <div className="lg:col-span-5">
-              <div className="relative mx-auto max-w-md bg-white rounded-3xl p-6 shadow-xl border border-slate-200">
-                {/* Visual badge */}
-                <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-white font-bold">
-                      <BookOpen className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">GyanSetu Portal</p>
-                      <p className="text-[10px] text-teal-600">Standard 10 • Science & Math</p>
-                    </div>
+              <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200 space-y-4">
+                <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-900 to-teal-600 flex items-center justify-center text-white">
+                    <BookOpen className="w-5 h-5" />
                   </div>
-                  <span className="px-2 py-0.5 text-[10px] font-bold bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
-                    Live Session
-                  </span>
-                </div>
-
-                {/* Lesson Preview Mock */}
-                <div className="space-y-3">
-                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-teal-300 transition">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Chapter 4 • Electricity</span>
-                      <span className="text-[10px] font-semibold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">Video + Notes</span>
-                    </div>
-                    <p className="text-sm font-bold text-slate-800">Ohm's Law & Factors Affecting Resistance</p>
-                    <p className="text-xs text-slate-500 mt-1">Uploaded by Dr. Ramesh Sharma (Verified PGT)</p>
-                    <div className="mt-3 flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Duration: 22 mins</span>
-                      <span className="text-teal-600 font-semibold flex items-center gap-1">
-                        Resume Lesson <ChevronRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-3.5 rounded-2xl bg-teal-50/50 border border-teal-200">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-teal-800">Active Test</span>
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">Due Oct 28</span>
-                    </div>
-                    <p className="text-sm font-bold text-slate-800">Circuits & Resistors Speed Quiz</p>
-                    <p className="text-xs text-slate-500 mt-1">4 Questions • 15 Minutes</p>
-                  </div>
-                </div>
-
-                <div className="mt-5 p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between text-xs">
                   <div>
-                    <p className="font-semibold text-slate-100">Overall Syllabus Progress</p>
-                    <p className="text-[10px] text-teal-400">Science: 65% Completed</p>
+                    <h3 className="text-sm font-bold text-slate-900">What GyanSetu Delivers</h3>
+                    <p className="text-[11px] text-slate-500">Every resource verified & class-aligned</p>
                   </div>
-                  <div className="w-12 h-12 rounded-full border-2 border-teal-400 flex items-center justify-center font-bold text-xs text-teal-400">
-                    65%
+                </div>
+
+                <div className="space-y-2.5 text-xs text-slate-700">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                    <FileText className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-slate-900">NCERT & Board Notes (PDF)</p>
+                      <p className="text-[11px] text-slate-500">Structured chapter summaries, derivations & formulas.</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                    <Video className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-slate-900">Expert Video Lectures</p>
+                      <p className="text-[11px] text-slate-500">Concept breakdowns by certified school educators.</p>
+                    </div>
+                  </div>
+
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-start gap-3">
+                    <Award className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-slate-900">Self-Scoring Quizzes & Homework</p>
+                      <p className="text-[11px] text-slate-500">Instant explanations, marks tracking, and feedback.</p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Academic Navigation Hierarchy Breakdown */}
-      <section className="py-16 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-teal-600 mb-2">Structured Education</h2>
-            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Clear, Class-Wise Learning Path from Class 1 to 12
-            </h3>
-            <p className="text-sm text-slate-600 mt-3">
-              No scattered WhatsApp groups or unverified links. GyanSetu organizes school education in a rigorous academic hierarchy:
+      {/* ======================================================== */}
+      {/* 2. DEDICATED LOGIN / REGISTRATION SECTION RIGHT BELOW     */}
+      {/* ======================================================== */}
+      <section id="login-section" className="py-14 sm:py-20 bg-slate-50 border-b border-slate-200">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          
+          <div className="text-center space-y-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+              Direct Portal Access
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Sign In to GyanSetu
+            </h2>
+            <p className="text-xs text-slate-500">
+              Select whether you are a Student or a Teacher to continue
             </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {[
-              { label: '1. Board', desc: 'CBSE, State, ICSE', icon: Layers, color: 'bg-blue-50 text-blue-700 border-blue-200' },
-              { label: '2. Standard', desc: 'Class 1 to 12', icon: Compass, color: 'bg-teal-50 text-teal-700 border-teal-200' },
-              { label: '3. Subject', desc: 'Sci, Math, SST, Lang', icon: BookOpen, color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-              { label: '4. Chapter', desc: 'Syllabus Aligned', icon: FileText, color: 'bg-amber-50 text-amber-700 border-amber-200' },
-              { label: '5. Topic', desc: 'Concept by Concept', icon: Sparkles, color: 'bg-purple-50 text-purple-700 border-purple-200' },
-              { label: '6. Material', desc: 'Notes, Videos, Quizzes', icon: Video, color: 'bg-rose-50 text-rose-700 border-rose-200' }
-            ].map((step, idx) => {
-              const Icon = step.icon;
-              return (
-                <div key={idx} className={`p-4 rounded-2xl border text-center ${step.color} shadow-2xs`}>
-                  <div className="w-8 h-8 mx-auto mb-2 rounded-lg bg-white/80 flex items-center justify-center shadow-xs">
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <h4 className="font-bold text-xs">{step.label}</h4>
-                  <p className="text-[10px] opacity-80 mt-0.5">{step.desc}</p>
+          {/* THE TWO OPTIONS: STUDENT VS TEACHER */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Option 1: Student */}
+            <button
+              type="button"
+              onClick={() => handleRoleToggle('student')}
+              className={`p-5 rounded-3xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                selectedRole === 'student'
+                  ? 'border-teal-500 bg-white shadow-lg ring-4 ring-teal-500/10'
+                  : 'border-slate-200 bg-white/70 hover:border-slate-300 text-slate-500'
+              }`}
+            >
+              {selectedRole === 'student' && (
+                <div className="absolute top-3 right-3 text-teal-600">
+                  <CheckCircle2 className="w-5 h-5 fill-teal-50 text-teal-600" />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+              )}
+              <div className="w-10 h-10 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-700 mb-3">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">I am a Student</h3>
+                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                  Standards 1 to 12 • Access notes, videos & tests
+                </p>
+              </div>
+            </button>
 
-      {/* Feature Grid: Students vs Teachers */}
-      <section className="py-20 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {/* Student Features */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div className="inline-flex p-3 rounded-2xl bg-teal-50 text-teal-700 mb-5">
-                <GraduationCap className="w-7 h-7" />
+            {/* Option 2: Teacher */}
+            <button
+              type="button"
+              onClick={() => handleRoleToggle('teacher')}
+              className={`p-5 rounded-3xl border-2 text-left transition-all relative overflow-hidden flex flex-col justify-between ${
+                selectedRole === 'teacher'
+                  ? 'border-blue-600 bg-white shadow-lg ring-4 ring-blue-600/10'
+                  : 'border-slate-200 bg-white/70 hover:border-slate-300 text-slate-500'
+              }`}
+            >
+              {selectedRole === 'teacher' && (
+                <div className="absolute top-3 right-3 text-blue-600">
+                  <CheckCircle2 className="w-5 h-5 fill-blue-50 text-blue-600" />
+                </div>
+              )}
+              <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-700 mb-3">
+                <BookOpen className="w-5 h-5" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">Built for Students</h3>
-              <p className="text-sm text-slate-600 mb-6">
-                Age-appropriate, distraction-free environment for young learners in Standards 1–5 up to board exam prep for Standards 10 & 12.
-              </p>
-              <ul className="space-y-3.5 text-sm text-slate-700">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>Class-wise notes & revision sheets:</strong> Read handwritten and formatted notes aligned with NCERT.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>Interactive Quizzes & Practice:</strong> Immediate scoring, instant explanations, and re-attempt tracking.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>Assignments & Teacher Feedback:</strong> Upload homework, track deadlines, and receive personalized marks.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-                  <span><strong>Child Safety First:</strong> No personal contact numbers exposed, no unsolicited messages.</span>
-                </li>
-              </ul>
-              <div className="mt-8 pt-6 border-t border-slate-100">
-                <Link
-                  to="/student/dashboard"
-                  onClick={() => switchRole('student')}
-                  className="text-sm font-semibold text-teal-700 hover:text-teal-900 flex items-center gap-1.5"
-                >
-                  Explore Student Dashboard <ArrowRight className="w-4 h-4" />
-                </Link>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">I am a Teacher</h3>
+                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                  Educators & Tutors • Upload materials & create quizzes
+                </p>
               </div>
+            </button>
+          </div>
+
+          {/* DYNAMIC FORM CARD WITH DETAILED FIELDS & AUTO-SUGGESTIONS */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-md space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  {isSignUp ? `New ${selectedRole === 'student' ? 'Student' : 'Teacher'} Registration` : `${selectedRole === 'student' ? 'Student' : 'Teacher'} Login`}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  {isSignUp ? 'Provide your academic details below' : `Access your ${selectedRole} dashboard`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-xs font-bold text-teal-600 hover:text-teal-800"
+              >
+                {isSignUp ? 'Already registered? Log In' : 'New user? Complete Sign Up'}
+              </button>
             </div>
 
-            {/* Teacher Features */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-md transition">
-              <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-700 mb-5">
-                <BookOpen className="w-7 h-7" />
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
+              
+              {/* Common Credentials */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {selectedRole === 'student' ? 'Student Email ID' : 'Teacher Email ID'}
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3">Built for Teachers</h3>
-              <p className="text-sm text-slate-600 mb-6">
-                An information-dense productivity workstation to manage class curriculum, upload learning resources, and track mastery.
-              </p>
-              <ul className="space-y-3.5 text-sm text-slate-700">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Multi-Format Material Upload:</strong> Upload PDFs, presentation slides, notes, and educational video links.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Automated & Manual Grading:</strong> Create MCQ tests that self-grade or review submitted homework files.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Admin Verification:</strong> Quality control mechanism ensures only authorized educators publish to classes.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                  <span><strong>Class Broadcast Announcements:</strong> Send notifications to entire classes regarding tests or revisions.</span>
-                </li>
-              </ul>
-              <div className="mt-8 pt-6 border-t border-slate-100">
-                <Link
-                  to="/teacher/dashboard"
-                  onClick={() => switchRole('teacher')}
-                  className="text-sm font-semibold text-blue-700 hover:text-blue-900 flex items-center gap-1.5"
+
+              {/* If Sign Up */}
+              {isSignUp && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                  <div className="relative">
+                    <User className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                    <input
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder={selectedRole === 'student' ? 'e.g. Vaishnav Musmade' : 'e.g. Dr. Ramesh Sharma'}
+                      className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* STUDENT SPECIFIC PROFILE & AUTO-SUGGESTIONS */}
+              {selectedRole === 'student' && (
+                <div className="p-4 rounded-2xl bg-teal-50/40 border border-teal-100 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-teal-900 pb-1 border-b border-teal-200/50">
+                    <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Student Grade & Academic Details</span>
+                  </div>
+
+                  {/* Standard / Class Selector (1 to 12) */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Select Standard / Class (1 to 12)
+                    </label>
+                    <div className="grid grid-cols-6 sm:grid-cols-12 gap-1.5">
+                      {[...Array(12)].map((_, i) => {
+                        const num = i + 1;
+                        const isSelected = standard === num;
+                        return (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setStandard(num)}
+                            className={`py-2 text-xs font-bold rounded-xl transition ${
+                              isSelected
+                                ? 'bg-teal-600 text-white shadow-xs'
+                                : 'bg-white border border-slate-200 text-slate-700 hover:border-teal-300'
+                            }`}
+                          >
+                            {num}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* If Standard 11 or 12: Stream */}
+                  {standard >= 11 && (
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Academic Stream (Class 11 & 12)
+                      </label>
+                      <input
+                        type="text"
+                        value={stream}
+                        onChange={(e) => setStream(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none mb-1.5"
+                      />
+                      <div className="flex flex-wrap gap-1.5">
+                        {streamSuggestions.map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => setStream(s)}
+                            className="px-2 py-0.5 rounded-full text-[10px] bg-white border border-teal-200 text-teal-800 hover:bg-teal-50 font-medium"
+                          >
+                            + {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Education Board */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Education Board
+                    </label>
+                    <input
+                      type="text"
+                      value={board}
+                      onChange={(e) => setBoard(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none mb-1.5"
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      {boardSuggestions.map((b) => (
+                        <button
+                          key={b}
+                          type="button"
+                          onClick={() => setBoard(b)}
+                          className={`px-2 py-0.5 rounded-full text-[10px] border transition ${
+                            board === b
+                              ? 'bg-teal-600 text-white border-teal-600 font-semibold'
+                              : 'bg-white border-slate-200 text-slate-600 hover:border-teal-300'
+                          }`}
+                        >
+                          {b}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Parent Mobile & School */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Parent Contact Number
+                      </label>
+                      <div className="relative">
+                        <Phone className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                        <input
+                          type="tel"
+                          value={parentContact}
+                          onChange={(e) => setParentContact(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        School Name
+                      </label>
+                      <div className="relative">
+                        <School className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          value={schoolName}
+                          onChange={(e) => setSchoolName(e.target.value)}
+                          placeholder="e.g. Kendriya Vidyalaya"
+                          className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-teal-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Medium */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Medium of Study
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {mediumSuggestions.map((m) => (
+                        <button
+                          key={m}
+                          type="button"
+                          onClick={() => setMediumOfStudy(m)}
+                          className={`px-2.5 py-1 rounded-xl text-xs border font-medium transition ${
+                            mediumOfStudy === m
+                              ? 'bg-teal-600 text-white border-teal-600 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TEACHER SPECIFIC PROFILE & AUTO-SUGGESTIONS */}
+              {selectedRole === 'teacher' && (
+                <div className="p-4 rounded-2xl bg-blue-50/40 border border-blue-100 space-y-4">
+                  <div className="flex items-center gap-2 text-xs font-bold text-blue-900 pb-1 border-b border-blue-200/50">
+                    <Briefcase className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Educator Qualifications & Subject Specialization</span>
+                  </div>
+
+                  {/* Teaching Subject */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Teaching Subject
+                    </label>
+                    <input
+                      type="text"
+                      value={teachingSubject}
+                      onChange={(e) => setTeachingSubject(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none mb-1.5"
+                      required
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      {teacherSubjectSuggestions.map((sub) => (
+                        <button
+                          key={sub}
+                          type="button"
+                          onClick={() => setTeachingSubject(sub)}
+                          className={`px-2 py-0.5 rounded-full text-[10px] border transition ${
+                            teachingSubject === sub
+                              ? 'bg-blue-600 text-white border-blue-600 font-semibold'
+                              : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300'
+                          }`}
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Teaching Experience */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Teaching Experience
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {experienceSuggestions.map((exp) => (
+                        <button
+                          key={exp}
+                          type="button"
+                          onClick={() => setExperienceYears(exp)}
+                          className={`p-2 rounded-xl text-left text-xs border transition ${
+                            experienceYears === exp
+                              ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                              : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          {exp}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Classes Taught Multi-Select */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Classes Taught (Click to select multiple)
+                    </label>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
+                      {[...Array(12)].map((_, i) => {
+                        const cName = `Class ${i + 1}`;
+                        const isChecked = classesTaught.includes(cName);
+                        return (
+                          <button
+                            key={cName}
+                            type="button"
+                            onClick={() => handleClassSelectionToggle(cName)}
+                            className={`py-1.5 px-2 rounded-lg text-xs font-semibold border transition ${
+                              isChecked
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            {cName}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Qualifications */}
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      Highest Qualification
+                    </label>
+                    <input
+                      type="text"
+                      value={qualification}
+                      onChange={(e) => setQualification(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none mb-1.5"
+                    />
+                    <div className="flex flex-wrap gap-1.5">
+                      {qualificationSuggestions.map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => setQualification(q)}
+                          className="px-2 py-0.5 rounded-full text-[10px] bg-white border border-blue-200 text-blue-800 hover:bg-blue-50 font-medium"
+                        >
+                          + {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Affiliation & State */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Current Institution
+                      </label>
+                      <input
+                        type="text"
+                        value={affiliatedInstitution}
+                        onChange={(e) => setAffiliatedInstitution(e.target.value)}
+                        placeholder="e.g. St. Xavier's High School"
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">State</label>
+                      <select
+                        value={stateName}
+                        onChange={(e) => setStateName(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      >
+                        {indianStates.map(st => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className={`w-full py-3.5 rounded-2xl font-bold text-xs text-white shadow-md transition flex items-center justify-center gap-2 ${
+                  selectedRole === 'student'
+                    ? 'bg-slate-900 hover:bg-slate-800'
+                    : 'bg-blue-700 hover:bg-blue-800'
+                }`}
+              >
+                <span>{isSignUp ? `Complete ${selectedRole} Registration` : `Login to ${selectedRole} Dashboard`}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+
+            {/* Quick Demo Pre-fills */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+              <span>Fast Demo Sign-In:</span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleRoleToggle('student')}
+                  className="text-teal-700 hover:underline font-semibold"
                 >
-                  Explore Teacher Workstation <ArrowRight className="w-4 h-4" />
-                </Link>
+                  Sample Student
+                </button>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() => handleRoleToggle('teacher')}
+                  className="text-blue-700 hover:underline font-semibold"
+                >
+                  Sample Teacher
+                </button>
               </div>
             </div>
           </div>
+
+          <div className="p-4 rounded-2xl bg-white/60 border border-slate-200 text-center text-xs text-slate-500 flex items-center justify-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>Compliant with Indian Child Privacy Regulations & Verified Teacher Standards</span>
+          </div>
+
         </div>
       </section>
 
-      {/* Frequently Asked Questions */}
-      <section className="py-20 bg-white border-b border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Frequently Asked Questions</h2>
-            <p className="text-sm text-slate-500 mt-2">Everything you need to know about GyanSetu</p>
-          </div>
-
-          <div className="space-y-4">
-            {[
-              {
-                q: 'Which education boards are supported on GyanSetu?',
-                a: 'GyanSetu is initially configured with the complete CBSE curriculum for Standards 1 to 12. Support for Maharashtra State Board (MSBSHSE), ICSE, and other state boards is built into the academic hierarchy and can be managed directly via the Admin Console.'
-              },
-              {
-                q: 'Can any user register as a teacher and post content?',
-                a: 'No. GyanSetu enforces a strict verification workflow. When teachers register, their account is flagged as pending until the School Administrator reviews credentials and assigns authorized classes and subjects.'
-              },
-              {
-                q: 'How does GyanSetu protect school-age student privacy?',
-                a: 'In accordance with Indian child-data protection guidelines, students are never asked for sensitive personal details. Student marks, submissions, and contact info are private and only viewable by authorized class teachers and administrators.'
-              },
-              {
-                q: 'Is GyanSetu accessible on mobile phones?',
-                a: 'Yes. GyanSetu is designed mobile-first so students and teachers can easily access notes, stream video lessons, and take quizzes on budget smartphones, tablets, or computers.'
-              }
-            ].map((faq, idx) => (
-              <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200">
-                <h4 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                  <HelpCircle className="w-4 h-4 text-teal-600 shrink-0" />
-                  <span>{faq.q}</span>
-                </h4>
-                <p className="text-xs text-slate-600 mt-2 pl-6 leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-slate-900 via-slate-800 to-teal-900 text-white">
-        <div className="max-w-5xl mx-auto px-4 text-center space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-            Ready to Bridge the Knowledge Gap in Your School?
-          </h2>
-          <p className="text-slate-300 text-sm max-w-xl mx-auto">
-            Experience the unified learning platform built specifically for Indian school curricula from Class 1 through 12.
-          </p>
-          <div className="pt-2 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/student/dashboard"
-              onClick={() => switchRole('student')}
-              className="px-6 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm shadow-lg transition"
-            >
-              Open Student Portal
-            </Link>
-            <Link
-              to="/admin/dashboard"
-              onClick={() => switchRole('admin')}
-              className="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-sm border border-slate-700 transition"
-            >
-              Administrator Console
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };
